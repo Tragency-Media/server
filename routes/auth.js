@@ -7,7 +7,7 @@ import decode from "../middleware/auth.js";
 const router = Router();
 
 // @route GET /api/auth
-// @desc test route
+// @desc get user
 // @acc private
 
 router.route("/").get(decode, async (req, res) => {
