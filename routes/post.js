@@ -73,15 +73,15 @@ router
           type === "vlogs"
             ? {
                 resource_type: "video",
-                // notification_url:`http://tragency.in/api/post/cloudinary/${newPost.id}`,
-                notification_url:
-                  "https://webhook.site/9cb5b85c-1100-42ee-a95f-22faf921af35",
+                notification_url: `https://protected-coast-04554.herokuapp.com/api/post/cloudinary/${newPost.id}`,
+                // notification_url:
+                //   "https://webhook.site/9cb5b85c-1100-42ee-a95f-22faf921af35",
               }
             : {
                 moderation: "aws_rek",
-                // notification_url:`http://tragency.in/api/post/cloudinary/${newPost.id}`,
-                notification_url:
-                  "https://webhook.site/9cb5b85c-1100-42ee-a95f-22faf921af35",
+                notification_url: `https://protected-coast-04554.herokuapp.com/api/post/cloudinary/${newPost.id}`,
+                // notification_url:
+                //   "https://webhook.site/9cb5b85c-1100-42ee-a95f-22faf921af35",
               };
         for (const file of req.files) {
           // console.log(file);
