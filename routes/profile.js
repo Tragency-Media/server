@@ -11,10 +11,10 @@ const router = Router();
 
 router.route("/me").get(decode, async (req, res) => {
   try {
-    const profile = await Profile.findOne({ user: req.user.id }).populate(
-      "user",
-      "username"
-    );
+    const profile = await Profile.findOne({ user: req.user.id }).populate({
+      path: "user",
+      select: "username",
+    });
     if (!profile) return res.status(404).json({ msg: "No Profile Found" });
     return res.json({ profile });
   } catch (e) {
@@ -29,9 +29,11 @@ router.route("/").post(decode, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     // console.log(user.email);
-    const avatar =
-      req.body.avatar ||
-      gravatar.url(user.email, { s: "200", r: "pg", d: "mp" }, true);
+    const avatar = gravatar.url(
+      user.email,
+      { s: "200", r: "pg", d: "mp" },
+      true
+    );
     // console.log(gravatar);
     let profile = await Profile.findOne({ user: req.user.id });
     if (profile) {
@@ -42,8 +44,8 @@ router.route("/").post(decode, async (req, res) => {
       );
       return res.json({ profile });
     } else {
-      profile = new Profile({ avatar, user });
-      await newProfile.save();
+      profile = new Profile({ avatar, user: user.id });
+      await profile.save();
     }
     return res.json({ profile });
   } catch (error) {

@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { check, validationResult } from "express-validator";
+// import cookie from "cookie-parser";
+import gravatar from "gravatar";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
@@ -15,7 +17,7 @@ router.route("/").get(decode, async (req, res) => {
     const user = await User.findById(req.user.id).select("-password");
     res.json({ user });
   } catch (e) {
-    res.status(400).json({ msg: e });
+    res.status(400).json({ errors: [{ msg: e }] });
   }
 });
 
@@ -49,12 +51,19 @@ router
             .status(400)
             .json({ errors: [{ msg: "Invalid Credentials" }] });
         const secret = process.env.SECRET;
+        let dt = new Date();
+        dt.setDate(dt.getDate() + 2);
+        // console.log(dt);
         jwt.sign(
           { user: { id: user.id } },
           secret,
           { expiresIn: "2 days" },
           (e, token) => {
             if (e) throw e;
+            res.cookie("token", token, {
+              expires: dt,
+              httpOnly: true,
+            });
             return res.json({ token });
           }
         );
@@ -92,18 +101,29 @@ router
             .status(400)
             .json({ errors: [{ msg: "User already exists" }] });
         }
-        const newUser = new User({ email, password, username });
+        const avatar = gravatar.url(
+          email,
+          { s: "200", r: "pg", d: "mp" },
+          true
+        );
+        const newUser = new User({ email, password, username, avatar });
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(newUser.password, salt);
         newUser.password = hash;
         await newUser.save();
         const secret = process.env.SECRET;
+        let dt = new Date();
+        dt.setDate(dt.getDate() + 2);
         jwt.sign(
           { user: { id: newUser.id } },
           secret,
           { expiresIn: "2 days" },
           (e, token) => {
             if (e) throw e;
+            res.cookie("token", token, {
+              expires: dt,
+              httpOnly: true,
+            });
             return res.json({ token });
           }
         );
@@ -112,5 +132,18 @@ router
       }
     }
   );
+
+// @route POST /api/auth/logout
+// @desc logout user
+// @acc private
+
+router.route("/logout").post(decode, async (req, res) => {
+  try {
+    res.cookie("token", "", { expires: new Date(0), httpOnly: true });
+    return res.json({ msg: "Logged Out!" });
+  } catch (e) {
+    return res.status(500).json({ errors: [{ msg: e }] });
+  }
+});
 
 export default router;
