@@ -25,14 +25,11 @@ mongoose.connect(uri, (e) => console.log(e));
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute);
 app.use("/api/post", postRoute);
-process.env.PWD = process.cwd();
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(process.env.PWD, "client/build")));
+  app.use(express.static("client/build"));
   app.get("*", (req, res) => {
-    res.sendFile(
-      path.resolve(process.env.PWD, "client", "build", "index.html")
-    );
+    res.sendFile(path.resolve("client", "build", "index.html"));
   });
 }
 
