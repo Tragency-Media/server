@@ -39,7 +39,7 @@ router
       }
       const { email, password } = req.body;
       try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: email.toLowerCase() });
         if (!user)
           return res
             .status(400)
@@ -106,7 +106,12 @@ router
           { s: "200", r: "pg", d: "mp" },
           true
         );
-        const newUser = new User({ email, password, username, avatar });
+        const newUser = new User({
+          email: email.toLowerCase(),
+          password,
+          username,
+          avatar,
+        });
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(newUser.password, salt);
         newUser.password = hash;

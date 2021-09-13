@@ -19,8 +19,6 @@ app.use(cookieParser());
 
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, (e) => console.log(e));
-// const connection = mongoose.connection;
-// connection.once("open");
 
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute);
