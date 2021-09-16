@@ -15,13 +15,6 @@ router.route("/cloudinary/:id").post(async (req, res) => {
   const post = await Post.findById(req.params.id);
   console.log(post);
   if (!post) return res.status(404).json({ msg: "Post not found!" });
-  // else if (
-  //   !req.body.moderation &&
-  //   req.body.moderation_status === "approved"
-  // ) {
-  //   post.content.unshift(req.body.secure_url);
-  //   post.public_id.unshift(req.body.public_id);
-  // }
   if (
     req.body.resource_type === "video" ||
     req.body.moderation_status === "approved"
@@ -74,27 +67,13 @@ router
             ? {
                 resource_type: "video",
                 notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
-                // notification_url:
-                //   "https://webhook.site/9cb5b85c-1100-42ee-a95f-22faf921af35",
               }
             : {
                 moderation: "aws_rek",
                 notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
-                // notification_url:
-                //   "https://webhook.site/9cb5b85c-1100-42ee-a95f-22faf921af35",
               };
         for (const file of req.files) {
-          // console.log(file);
           v2.uploader.upload(file.path, optionsObj);
-          // console.log(result);
-          // const { secure_url, public_id } = result;
-          // if (type !== "images" || result.moderation[0].status === "approved") {
-          // fileUrls.push(secure_url);
-          // filePublicIds.push(public_id);
-          // } else
-          //   return res
-          //     .status(400)
-          //     .json({ errors: [{ msg: "File contains explicit content" }] });
         }
         const post = await newPost.save();
         return res.json({ post });
@@ -141,13 +120,12 @@ router.route("/:id").get(decode, async (req, res) => {
 
 router.route("/type/:type").get(decode, async (req, res) => {
   try {
-    // console.log(req.query.page);
     const posts = await Post.find({ type: req.params.type })
       .populate({
         path: "user",
         select: "username avatar",
       })
-      .sort({ updatedAt: -1 });
+      .sort({ date: -1 });
     if (posts.length === 0)
       return res.status(404).json({ errors: [{ msg: "No posts found!" }] });
     res.json({ posts });
