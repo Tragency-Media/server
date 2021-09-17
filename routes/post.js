@@ -125,6 +125,8 @@ router.route("/type/:type").get(decode, async (req, res) => {
         path: "user",
         select: "username avatar",
       })
+      .skip((req.query.page - 1) * 3)
+      .limit(3)
       .sort({ date: -1 });
     if (posts.length === 0)
       return res.status(404).json({ errors: [{ msg: "No posts found!" }] });
@@ -149,6 +151,8 @@ router.route("/type/:type/:location").get(decode, async (req, res) => {
         path: "user",
         select: "username avatar",
       })
+      .skip((req.query.page - 1) * 3)
+      .limit(3)
       .sort({ date: -1 });
     if (posts.length === 0)
       return res.status(404).json({ errors: [{ msg: "No posts found!" }] });
