@@ -76,9 +76,16 @@ const postSchema = new mongoose.Schema(
         },
       },
     ],
-    date: {
-      type: Date,
-      default: Date.now(),
+    reports: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      },
+    ],
+    reportsLength: {
+      type: Number,
     },
   },
   { timestamps: true }

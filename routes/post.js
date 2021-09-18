@@ -40,7 +40,7 @@ router
     ],
     async (req, res) => {
       let { content, type, title, tags, location } = req.body;
-      if (req.files.length === 0 && type !== "blogs") {
+      if (!req.files && type !== "blogs") {
         return res
           .status(400)
           .json({ errors: [{ msg: "No files were uploaded." }] });
@@ -60,8 +60,10 @@ router
           tags,
           location,
           user,
+          reportsLength: 0,
+          reports: [],
         });
-        // console.log(content, public_id);
+        console.log(content, public_id);
         const optionsObj =
           type === "vlogs"
             ? {
@@ -72,9 +74,10 @@ router
                 moderation: "aws_rek",
                 notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
               };
-        for (const file of req.files) {
-          v2.uploader.upload(file.path, optionsObj);
-        }
+        if (type !== "blogs")
+          for (const file of req.files) {
+            v2.uploader.upload(file.path, optionsObj);
+          }
         const post = await newPost.save();
         return res.json({ post });
         // console.log(result);
@@ -120,14 +123,21 @@ router.route("/:id").get(decode, async (req, res) => {
 
 router.route("/type/:type").get(decode, async (req, res) => {
   try {
-    const posts = await Post.find({ type: req.params.type })
+    const Users = await User.find();
+    // console.log(Users.length);
+    const lt = Math.ceil(0.1 * Users.length);
+    console.log(Math.ceil(lt), lt);
+    const posts = await Post.find({
+      reportsLength: { $lt: lt },
+      type: req.params.type,
+    })
       .populate({
         path: "user",
         select: "username avatar",
       })
       .skip((req.query.page - 1) * 3)
       .limit(3)
-      .sort({ date: -1 });
+      .sort({ createdAt: -1 });
     if (posts.length === 0)
       return res.status(404).json({ errors: [{ msg: "No posts found!" }] });
     res.json({ posts });
@@ -153,7 +163,7 @@ router.route("/type/:type/:location").get(decode, async (req, res) => {
       })
       .skip((req.query.page - 1) * 3)
       .limit(3)
-      .sort({ date: -1 });
+      .sort({ createdAt: -1 });
     if (posts.length === 0)
       return res.status(404).json({ errors: [{ msg: "No posts found!" }] });
     // console.log(req.params);
@@ -261,6 +271,31 @@ router.route("/unlike/:id").put(decode, async (req, res) => {
     post.likes.splice(removeIndex, 1);
     await post.save();
     res.json({ likes: post.likes });
+  } catch (e) {
+    if (e.kind == "ObjectId")
+      return res.status(404).json({ errors: [{ msg: "No post found!" }] });
+    res.status(500).json({ errors: [{ msg: "Internal server error" }] });
+  }
+});
+// @route PUT /api/post/report/:id
+// @desc report a post
+// @acc private
+router.route("/report/:id").put(decode, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post)
+      return res.status(404).json({ errors: [{ msg: "No post found!" }] });
+    if (
+      post.reports.filter((report) => report.user.toString() === req.user.id)
+        .length > 0
+    )
+      return res
+        .status(400)
+        .json({ errors: [{ msg: "Post already reported" }] });
+    post.reports.unshift({ user: req.user.id });
+    post.reportsLength += 1;
+    await post.save();
+    res.json({ reports: post.reports });
   } catch (e) {
     if (e.kind == "ObjectId")
       return res.status(404).json({ errors: [{ msg: "No post found!" }] });
