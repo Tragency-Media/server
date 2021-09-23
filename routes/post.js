@@ -63,7 +63,6 @@ router
           reportsLength: 0,
           reports: [],
         });
-        console.log(content, public_id);
         const optionsObj =
           type === "vlogs"
             ? {
@@ -126,7 +125,7 @@ router.route("/type/:type").get(decode, async (req, res) => {
     const Users = await User.find();
     // console.log(Users.length);
     const lt = Math.ceil(0.1 * Users.length);
-    console.log(Math.ceil(lt), lt);
+    // console.log(Math.ceil(lt), lt);
     const posts = await Post.find({
       reportsLength: { $lt: lt },
       type: req.params.type,
