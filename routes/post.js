@@ -151,9 +151,11 @@ router.route("/type/:type").get(decode, async (req, res) => {
 
 router.route("/type/:type/:location").get(decode, async (req, res) => {
   try {
-    // console.log(req.query.page);
     const posts = await Post.find({
-      location: req.params.location,
+      location: {
+        $regex: `${req.params.location}`,
+        $options: "i",
+      },
       type: req.params.type,
     })
       .populate({
