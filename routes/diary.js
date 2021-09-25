@@ -51,7 +51,6 @@ router
     }
   );
 
-  
 //get data by using date
 router.route("/:date").get(async (req, res) => {
   try {
