@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import authRoute from "./routes/auth.js";
 import profileRoute from "./routes/profile.js";
 import postRoute from "./routes/post.js";
+import diaryRoute from "./routes/diary.js";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ mongoose.connect(uri, (e) => console.log(e));
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute);
 app.use("/api/post", postRoute);
+app.use("/api/diary", diaryRoute);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("build"));
