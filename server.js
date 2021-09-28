@@ -10,6 +10,7 @@ import authRoute from "./routes/auth.js";
 import profileRoute from "./routes/profile.js";
 import postRoute from "./routes/post.js";
 import chatRoomRoute from "./routes/chats.js";
+import diaryRoute from "./routes/diary.js";
 import {
   addUser,
   getAllUsers,
@@ -33,6 +34,7 @@ mongoose.connect(uri, (e) => console.log(e));
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute);
 app.use("/api/post", postRoute);
+app.use("/api/diary", diaryRoute);
 app.use("/api/rooms", chatRoomRoute);
 
 io.on("connection", (socket) => {
