@@ -25,66 +25,69 @@ router.route("/cloudinary/:id").post(async (req, res) => {
   await post.save();
   return res.json({ post });
 });
-router
-  .route("/")
-  .post(
+router.route("/").post(
+  [
+    decode,
+    upload.array("files", 3),
     [
-      decode,
-      upload.array("files", 3),
-      [
-        check("content").notEmpty().withMessage("Please upload the content"),
-        check("type").notEmpty().withMessage("Please select type of post"),
-        check("title").notEmpty().withMessage("Caption not found"),
-        check("location").notEmpty().withMessage("Please upload the location"),
-      ],
+      // check("content").notEmpty().withMessage("Please upload the content"),
+      check("type").notEmpty().withMessage("Please select type of post"),
+      check("title").notEmpty().withMessage("Caption not found"),
+      check("location").notEmpty().withMessage("Please upload the location"),
+      // check("tags").notEmpty().withMessage("Please upload the tags"),
     ],
-    async (req, res) => {
-      let { content, type, title, tags, location } = req.body;
-      if (!req.files && type !== "blogs") {
-        return res
-          .status(400)
-          .json({ errors: [{ msg: "No files were uploaded." }] });
-      }
-      // console.log(req.files);
-      try {
-        const fileUrls = [];
-        const filePublicIds = [];
-        const user = await User.findById(req.user.id).select("-password");
-        content = type === "blogs" ? content : fileUrls;
-        const public_id = type === "blogs" ? [] : filePublicIds;
-        const newPost = new Post({
-          content,
-          public_id,
-          type,
-          title,
-          tags,
-          location,
-          user,
-          reportsLength: 0,
-          reports: [],
-        });
-        const optionsObj =
-          type === "vlogs"
-            ? {
-                resource_type: "video",
-                notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
-              }
-            : {
-                moderation: "aws_rek",
-                notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
-              };
-        if (type !== "blogs")
-          for (const file of req.files) {
-            v2.uploader.upload(file.path, optionsObj);
-          }
-        const post = await newPost.save();
-        return res.json({ post });
-        // console.log(result);
-      } catch (e) {
-        res.status(500).json({ errors: [{ msg: "Internal server error" }] });
-      }
+  ],
+  async (req, res) => {
+    let { content, type, title, tags, location } = req.body;
+    if (!req.files && type !== "blogs") {
+      return res
+        .status(400)
+        .json({ errors: [{ msg: "No files were uploaded." }] });
     }
-  );
+    // console.log(req.files);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const fileUrls = [];
+      const filePublicIds = [];
+      const user = await User.findById(req.user.id).select("-password");
+      content = type === "blogs" ? content : fileUrls;
+      const public_id = type === "blogs" ? [] : filePublicIds;
+      const newPost = new Post({
+        content,
+        public_id,
+        type,
+        title,
+        tags,
+        location,
+        user,
+        reportsLength: 0,
+        reports: [],
+      });
+      const optionsObj =
+        type === "vlogs"
+          ? {
+              resource_type: "video",
+              notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
+            }
+          : {
+              moderation: "aws_rek",
+              notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
+            };
+      if (type !== "blogs")
+        for (const file of req.files) {
+          v2.uploader.upload(file.path, optionsObj);
+        }
+      const post = await newPost.save();
+      return res.json({ post });
+      // console.log(result);
+    } catch (e) {
+      res.status(500).json({ errors: [{ msg: "Internal server error" }] });
+    }
+  }
+);
 
 // @route GET /api/post/me
 // @desc get posts of logged in user
@@ -332,6 +335,7 @@ router
           comment,
           avatar: user.avatar,
           username: user.username,
+          date: Date.now(),
         });
         await post.save();
         res.json({ comments: post.comments });
@@ -371,6 +375,7 @@ router
           reply,
           avatar: user.avatar,
           username: user.username,
+          date: Date.now(),
         });
         await post.save();
         res.json({ comments: post.comments });
