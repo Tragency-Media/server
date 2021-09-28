@@ -1,35 +1,27 @@
 import mongoose from "mongoose";
 
-const postDiary = new mongoose.Schema(
+const postSchema = new mongoose.Schema(
     {
          
-          title: {
+        user : {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User" ,
+          },  
+        published : {
             type: String,
+            index : true,
             required: true,
           },
-          date: {
+        date: {
             type: Date,
             default: Date.now(),
           },
-          file : {
-              type : file,
-              required : true
-          },
-          diary : [
-            {
-                user : {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "User" ,
-                  },
-                content : {
-                    type : text,
-                    required : true ,
-                },
-            },
-                
-            ],
-
-          },
-          {timestamps : true },
+          
+         
+    },
+    {timestamps : true },
     
-)
+);
+
+const Diary = new mongoose.model("Diary", postSchema);
+export default Diary;
