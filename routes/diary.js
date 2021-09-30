@@ -24,10 +24,12 @@ router
       }
 
       try {
-        const newDiary = req.body;
-
+        const newDiary = { ...req.body, user: req.user.id };
         // product is exists or not if exists then update else add new diary
-        let diary = await Diary.find({ published: req.params.date });
+        let diary = await Diary.findOne({
+          published: req.params.date,
+          user: req.user.id,
+        });
         if (diary) {
           // update
           diary = await Diary.findOneAndUpdate(
@@ -35,9 +37,8 @@ router
             { $set: { newDiary } },
             { new: true }
           );
-          res.status(200).json({
-            result: "Diary is Updated",
-            diary: diary,
+          return res.json({
+            diary,
           });
         }
 
@@ -56,11 +57,13 @@ router
 //get data by using date
 router.route("/:date").get(decode, async (req, res) => {
   try {
-    let diary = await Diary.find({
+    let diary = await Diary.findOne({
       published: req.params.date,
       user: req.user.id,
     });
-    if (!diary) return res.status(404).json({ msg: "Diary Not Found" });
+    // console.log(diary);
+    if (!diary)
+      return res.status(404).json({ errors: [{ msg: "Diary Not Found" }] });
     res.json({ diary });
   } catch (e) {
     console.error(e);
