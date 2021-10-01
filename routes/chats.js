@@ -74,6 +74,7 @@ router.post(
       const room = await newChatRoom.save();
       return res.json({ room });
     } catch (e) {
+      console.log(e.response);
       return res
         .status(500)
         .json({ errors: [{ msg: "Internal server error" }] });
