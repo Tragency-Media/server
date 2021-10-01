@@ -123,7 +123,7 @@ router.route("/:id").get(decode, async (req, res) => {
 // @desc get posts based on type
 // @acc private
 
-router.route("/type/:type").get(decode, async (req, res) => {
+router.route("/type/:type").get(async (req, res) => {
   try {
     const Users = await User.find();
     // console.log(Users.length);
@@ -152,7 +152,7 @@ router.route("/type/:type").get(decode, async (req, res) => {
 // @desc get posts based on location
 // @acc private
 
-router.route("/type/:type/:location").get(decode, async (req, res) => {
+router.route("/type/:type/:location").get(async (req, res) => {
   try {
     const posts = await Post.find({
       location: {

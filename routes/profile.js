@@ -88,7 +88,7 @@ router
 // @desc find profile by id
 // @acc private
 
-router.route("/user/:id").get(decode, async (req, res) => {
+router.route("/user/:id").get(async (req, res) => {
   try {
     let profile = await Profile.findOne({ user: req.params.id })
       .populate({
@@ -106,7 +106,7 @@ router.route("/user/:id").get(decode, async (req, res) => {
     }
     return res.json({ profile });
   } catch (error) {
-    if (err.kind == "ObjectId")
+    if (error.kind == "ObjectId")
       return res.status(404).json({ msg: "No Profile Found" });
     res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
   }
