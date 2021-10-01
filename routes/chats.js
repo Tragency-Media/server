@@ -12,7 +12,10 @@ const router = Router();
 // @acc private
 router.get("/", async (req, res) => {
   try {
-    const chatRooms = await ChatRoom.find({ approved: true });
+    const chatRooms = await ChatRoom.find({ approved: true }).populate({
+      path: "users.user",
+      select: "-password",
+    });
     return res.json({ chatRooms });
   } catch (e) {
     res.status(500).json({ errors: [{ msg: "Internal server error" }] });
@@ -46,23 +49,20 @@ router.post(
           .json({ errors: [{ msg: "No Group Image was uploaded." }] });
       }
       const { title, description, maxLimit } = req.body;
-      //   console.log("ti");
       const existingChatRoom = await ChatRoom.findOne({ title });
       if (existingChatRoom)
         return res.status(400).json({
           errors: [{ msg: "Chat Room with same name already exists" }],
         });
       const { file } = req;
-      const user = await User.findById(req.user.id);
-      //   console.log(req.files);
-      const { username, avatar } = user;
       const { secure_url: profileImage, public_id } = await v2.uploader.upload(
         file.path
       );
+      // console.log(title, description, maxLimit);
       //   console.log(response);
       const newChatRoom = new ChatRoom({
         admin: req.user.id,
-        users: [{ user: req.user.id, username, avatar }],
+        users: [{ user: req.user.id }],
         messages: [],
         maxLimit,
         title,
@@ -74,7 +74,7 @@ router.post(
       const room = await newChatRoom.save();
       return res.json({ room });
     } catch (e) {
-      console.log(e.response);
+      // console.log(e);
       return res
         .status(500)
         .json({ errors: [{ msg: "Internal server error" }] });
@@ -87,24 +87,27 @@ router.post(
 // @acc private
 router.route("/:id").get(decode, async (req, res) => {
   try {
-    const chatRoom = await ChatRoom.findById(req.params.id);
+    const chatRoom = await ChatRoom.findById(req.params.id)
+      .populate({
+        path: "users.user",
+        select: "-password",
+      })
+      .populate({ path: "messages.user", select: "-password" });
     if (!chatRoom)
       return res.status(404).json({ errors: [{ msg: "No Chat Room Found" }] });
     const userExists = chatRoom.users.find(
-      (user) => user.user.toString() === req.user.id
+      (user) => user.user.id.toString() === req.user.id
     );
-    // console.log(chatRoom.users.);
+    // console.log(chatRoom.users.)
     if (!userExists) {
-      const user = await User.findById(req.user.id);
-      //   console.log(req.files);
-      const { username, avatar } = user;
-      chatRoom.users.unshift({ user: req.user.id, username, avatar });
+      chatRoom.users.unshift({ user: req.user.id });
       await chatRoom.save();
       return res.json({ chatRoom });
     }
     // console.log(chatRoom);
     return res.json({ chatRoom });
   } catch (e) {
+    console.log(e);
     res.status(500).json({ errors: [{ msg: "Internal server error" }] });
   }
 });
@@ -143,15 +146,13 @@ router
           return res.status(400).json({ errors: errors.array() });
         }
         const chatRoom = await ChatRoom.findById(req.params.id);
-        const { message, username, avatar, user, date } = req.body;
+        const { message, user, date } = req.body;
         if (!chatRoom)
           return res
             .status(404)
             .json({ errors: [{ msg: "No Chat Room Found" }] });
         chatRoom.messages.push({
           user,
-          username,
-          avatar,
           message,
           date,
         });

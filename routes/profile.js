@@ -60,7 +60,7 @@ router
             // console.log(user.public_id);
             await v2.uploader.destroy(user.public_id);
           }
-          console.log(image);
+          // console.log(image);
           const { secure_url: avatar, public_id } = await v2.uploader.upload(
             image.path
           );

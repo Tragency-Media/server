@@ -33,10 +33,6 @@ const chatRoomSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
         },
-        username: {
-          type: String,
-        },
-        avatar: { type: String },
       },
     ],
     messages: [
@@ -45,10 +41,6 @@ const chatRoomSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
         },
-        username: {
-          type: String,
-        },
-        avatar: { type: String },
         message: {
           type: String,
           required: true,
