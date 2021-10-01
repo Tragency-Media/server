@@ -106,7 +106,7 @@ router.route("/me").get(decode, async (req, res) => {
 // @desc get posts based on id
 // @acc private
 
-router.route("/:id").get(decode, async (req, res) => {
+router.route("/:id").get(async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post)
