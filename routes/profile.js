@@ -8,6 +8,19 @@ import v2 from "../utils/cloudinary.js";
 import upload from "../utils/multer.js";
 const router = Router();
 
+// @route GET /api/profile
+// @desc get all users
+// @acc private
+
+router.route("/").get(async (req, res) => {
+  try {
+    let profiles = await Profile.find().map((profile) => profile.user);
+    return res.json({ profiles });
+  } catch (e) {
+    res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
+  }
+});
+
 // @route GET /api/profile/me
 // @desc get current user profile
 // @acc private
