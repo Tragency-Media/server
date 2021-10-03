@@ -14,7 +14,8 @@ const router = Router();
 
 router.route("/").get(async (req, res) => {
   try {
-    let profiles = await Profile.find().map((profile) => profile.user);
+    // console.log("h");
+    let profiles = (await Profile.find()).flatMap((profile) => profile.user);
     return res.json({ profiles });
   } catch (e) {
     res.status(500).json({ errors: [{ msg: "Internal Server Error" }] });
