@@ -5,12 +5,10 @@ import User from "../models/user.model.js";
 import Post from "../models/post.model.js";
 import v2 from "../utils/cloudinary.js";
 import upload from "../utils/multer.js";
+import Profile from "../models/profile.model.js";
 
 const router = Router();
 
-// @route POST /api/post
-// @desc new post
-// @acc private
 router.route("/cloudinary/:id").post(async (req, res) => {
   const post = await Post.findById(req.params.id);
   console.log(post);
@@ -25,6 +23,10 @@ router.route("/cloudinary/:id").post(async (req, res) => {
   await post.save();
   return res.json({ post });
 });
+
+// @route POST /api/post
+// @desc new post
+// @acc private
 router.route("/").post(
   [
     decode,
@@ -52,7 +54,7 @@ router.route("/").post(
     try {
       const fileUrls = [];
       const filePublicIds = [];
-      const user = await User.findById(req.user.id).select("-password");
+      const profile = await Profile.findOne({ user: req.user.id });
       content = type === "blogs" ? content : fileUrls;
       const public_id = type === "blogs" ? [] : filePublicIds;
       const newPost = new Post({
@@ -62,10 +64,11 @@ router.route("/").post(
         title,
         tags,
         location,
-        user,
+        user: profile.user,
         reportsLength: 0,
         reports: [],
       });
+      profile.posts.unshift(newPost.id);
       const optionsObj =
         type === "vlogs"
           ? {
