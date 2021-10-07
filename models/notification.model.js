@@ -10,13 +10,17 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    content: {
+    body: {
       type: String,
       required: true,
     },
     icon: {
       type: String,
       required: true,
+    },
+    viewed: {
+      type: Boolean,
+      default: true,
     },
   },
   { timestamps: true }

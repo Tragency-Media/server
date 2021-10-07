@@ -62,7 +62,7 @@ router.route("/broadcast/:roomId").post(decode, async (req, res) => {
       notifications.push(webpush.sendNotification(subscription, payload));
     });
     await Promise.all(notifications);
-    console.log(notifications);
+    // console.log(notifications);
     res.status(201).json({});
   } catch (e) {
     console.log(e);
@@ -78,8 +78,12 @@ router.route("/:id").post(decode, async (req, res) => {
     const { id } = req.params;
     // Create payload
     const payload = JSON.stringify(options);
-    const subscription = await Subscription.findOne({ user: id });
-    webpush.sendNotification(subscription, payload);
+    const subscriptions = await Subscription.find({ user: id });
+    const notifications = [];
+    subscriptions.forEach((subscription) => {
+      notifications.push(webpush.sendNotification(subscription, payload));
+    });
+    await Promise.all(notifications);
     res.status(201).json({});
   } catch (e) {
     console.log(e);
@@ -103,7 +107,7 @@ router.get("/", decode, async (req, res) => {
 // @acc private
 router.get("/", decode, async (req, res) => {
   try {
-    const notification = new Notification(req.body);
+    const notification = new Notification(req.body.options);
     await notification.save();
     res.json({ msg: "Notification sent" });
   } catch (e) {
