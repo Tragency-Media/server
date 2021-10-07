@@ -13,13 +13,8 @@ router.route("/cloudinary/:id").post(async (req, res) => {
   const post = await Post.findById(req.params.id);
   console.log(post);
   if (!post) return res.status(404).json({ msg: "Post not found!" });
-  if (
-    req.body.resource_type === "video" ||
-    req.body.moderation_status === "approved"
-  ) {
-    post.content.unshift(req.body.secure_url);
-    post.public_id.unshift(req.body.public_id);
-  }
+  post.content.unshift(req.body.secure_url);
+  post.public_id.unshift(req.body.public_id);
   await post.save();
   return res.json({ post });
 });
@@ -69,19 +64,9 @@ router.route("/").post(
         reports: [],
       });
       profile.posts.unshift(newPost.id);
-      const optionsObj =
-        type === "vlogs"
-          ? {
-              resource_type: "video",
-              notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
-            }
-          : {
-              moderation: "aws_rek",
-              notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
-            };
       if (type !== "blogs")
         for (const file of req.files) {
-          v2.uploader.upload(file.path, optionsObj);
+          v2.uploader.upload(file.path);
         }
       const post = await newPost.save();
       return res.json({ post });

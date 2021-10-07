@@ -158,6 +158,10 @@ router
         });
         // console.log(message, username, avatar, user, date);
         await chatRoom.save();
+        await chatRoom.populate({
+          path: "messages.user",
+          select: "-password",
+        });
         // console.log("hello");
         return res.json({ chatRoom });
       } catch (e) {

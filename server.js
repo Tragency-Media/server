@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
   socket.on("chatMessage", (message) => {
     const user = getCurrentUser(socket.id);
     // console.log(user.room);
-    io.to(user.room).emit("chatMessage", message);
+    socket.broadcast.to(user.room).emit("chatMessage", message);
   });
   socket.on("disconnect", () => {
     const user = userLeave(socket.id);
