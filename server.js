@@ -11,6 +11,7 @@ import profileRoute from "./routes/profile.js";
 import postRoute from "./routes/post.js";
 import chatRoomRoute from "./routes/chats.js";
 import diaryRoute from "./routes/diary.js";
+import notificationRoute from "./routes/notification.js";
 import {
   addUser,
   getAllUsers,
@@ -36,6 +37,7 @@ app.use("/api/profile", profileRoute);
 app.use("/api/post", postRoute);
 app.use("/api/diary", diaryRoute);
 app.use("/api/rooms", chatRoomRoute);
+app.use("/api/notification", notificationRoute);
 
 io.on("connection", (socket) => {
   // socket.send("Hello!");
@@ -62,11 +64,11 @@ io.on("connection", (socket) => {
   });
 });
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static("build"));
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve("build", "index.html"));
-  });
-}
+// if (process.env.NODE_ENV === "production") {
+app.use(express.static("build"));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve("build", "index.html"));
+});
+// }
 
 server.listen(port);
