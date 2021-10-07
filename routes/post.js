@@ -64,11 +64,15 @@ router.route("/").post(
         reports: [],
       });
       profile.posts.unshift(newPost.id);
+      const optionsObj = {
+        notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
+      };
       if (type !== "blogs")
         for (const file of req.files) {
-          v2.uploader.upload(file.path);
+          v2.uploader.upload(file.path, optionsObj);
         }
       const post = await newPost.save();
+      await profile.save();
       return res.json({ post });
       // console.log(result);
     } catch (e) {
