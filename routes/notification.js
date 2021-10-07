@@ -28,10 +28,11 @@ router.route("/subscribe").post(decode, async (req, res) => {
     const { subscription } = req.body;
     res.status(201).json({});
     const newSubscription = new Subscription({
-      ...subscription,
       user: req.user.id,
+      ...subscription,
     });
     await newSubscription.save();
+    // console.log(newSubscription);
   } catch (e) {
     console.log(e);
   }
@@ -76,9 +77,11 @@ router.route("/:id").post(decode, async (req, res) => {
   try {
     const { options } = req.body;
     const { id } = req.params;
+    if (id === req.user.id) return res.json({});
     // Create payload
     const payload = JSON.stringify(options);
     const subscriptions = await Subscription.find({ user: id });
+    console.log(subscriptions);
     const notifications = [];
     subscriptions.forEach((subscription) => {
       notifications.push(webpush.sendNotification(subscription, payload));
@@ -105,11 +108,11 @@ router.get("/", decode, async (req, res) => {
 // @route POST /api/notifications
 // @desc add notification
 // @acc private
-router.get("/", decode, async (req, res) => {
+router.post("/", decode, async (req, res) => {
   try {
-    const notification = new Notification(req.body.options);
+    const notification = new Notification(req.body);
     await notification.save();
-    res.json({ msg: "Notification sent" });
+    res.json({ notification });
   } catch (e) {
     res.status(500).json({ errors: [{ msg: "Internal server error" }] });
   }

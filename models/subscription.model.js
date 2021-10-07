@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 const subscriptionSchema = new mongoose.Schema({
-  user: { type: String, required: true },
+  user: {
+    unique: false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   endpoint: { type: String, unique: true, required: true },
   expirationTime: { type: Number, required: false },
   keys: {
