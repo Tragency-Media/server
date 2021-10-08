@@ -11,11 +11,11 @@ const router = Router();
 
 router.route("/cloudinary/:id").post(async (req, res) => {
   const post = await Post.findById(req.params.id);
-  console.log(post);
   if (!post) return res.status(404).json({ msg: "Post not found!" });
   post.content.unshift(req.body.secure_url);
   post.public_id.unshift(req.body.public_id);
   await post.save();
+  console.log(post);
   return res.json({ post });
 });
 
