@@ -1,3 +1,27 @@
+self.onnotificationclick = (e) => {
+  e.notification.close(); // Android needs explicit close.
+  e.waitUntil(
+    clients
+      .matchAll({ includeUncontrolled: true, type: "window" })
+      .then((clientsArr) => {
+        // If a Window tab matching the targeted URL already exists, focus that;
+        const hadWindowToFocus = clientsArr.some((windowClient) =>
+          windowClient.url ===
+          `${self.location.origin + e.notification.data.url}`
+            ? (windowClient.focus(), true)
+            : false
+        );
+        // Otherwise, open a new tab to the applicable URL and focus it.
+        if (!hadWindowToFocus)
+          clients
+            .openWindow(`${self.location.origin + e.notification.data.url}`)
+            .then((windowClient) =>
+              windowClient ? windowClient.focus() : null
+            );
+      })
+  );
+};
+
 self.addEventListener("push", (event) => {
   console.log(event);
   const data = event.data.json();
@@ -31,27 +55,3 @@ self.addEventListener("push", (event) => {
 //       })
 //   );
 // });
-
-self.onnotificationclick = (e) => {
-  e.notification.close(); // Android needs explicit close.
-  e.waitUntil(
-    clients
-      .matchAll({ includeUncontrolled: true, type: "window" })
-      .then((clientsArr) => {
-        // If a Window tab matching the targeted URL already exists, focus that;
-        const hadWindowToFocus = clientsArr.some((windowClient) =>
-          windowClient.url ===
-          `${self.location.origin + e.notification.data.url}`
-            ? (windowClient.focus(), true)
-            : false
-        );
-        // Otherwise, open a new tab to the applicable URL and focus it.
-        if (!hadWindowToFocus)
-          clients
-            .openWindow(`${self.location.origin + e.notification.data.url}`)
-            .then((windowClient) =>
-              windowClient ? windowClient.focus() : null
-            );
-      })
-  );
-};
