@@ -15,7 +15,7 @@ router.route("/cloudinary/:id").post(async (req, res) => {
   post.content.unshift(req.body.secure_url);
   post.public_id.unshift(req.body.public_id);
   await post.save();
-  console.log(post);
+  console.log(req.body);
   return res.json({ post });
 });
 
