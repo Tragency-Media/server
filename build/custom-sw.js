@@ -32,7 +32,7 @@ self.addEventListener("push", (event) => {
 //   );
 // });
 
-self.addEventListener("notificationclick", (e) => {
+self.onnotificationclick = (e) => {
   e.notification.close(); // Android needs explicit close.
   e.waitUntil(
     clients
@@ -54,4 +54,4 @@ self.addEventListener("notificationclick", (e) => {
             );
       })
   );
-});
+};
