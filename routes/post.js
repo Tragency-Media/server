@@ -64,9 +64,15 @@ router.route("/").post(
         reports: [],
       });
       profile.posts.unshift(newPost.id);
-      const optionsObj = {
-        notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
-      };
+      const optionsObj =
+        type === "images"
+          ? {
+              notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
+            }
+          : {
+              notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
+              resource_type: "video",
+            };
       if (type !== "blogs")
         for (const file of req.files) {
           v2.uploader.upload(file.path, optionsObj);
