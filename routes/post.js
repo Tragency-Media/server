@@ -11,6 +11,7 @@ const router = Router();
 
 router.route("/cloudinary/:id").post(async (req, res) => {
   const post = await Post.findById(req.params.id);
+  console.log("🚀 ~ router.route ~ req.params.id:", req.params.id);
   if (!post) return res.status(404).json({ msg: "Post not found!" });
   post.content.unshift(req.body.secure_url);
   post.public_id.unshift(req.body.public_id);
@@ -67,10 +68,10 @@ router.route("/").post(
       const optionsObj =
         type === "images"
           ? {
-              notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
+              notification_url: `https://tragency-media-33590e815193.herokuapp.com/api/post/cloudinary/${newPost.id}`,
             }
           : {
-              notification_url: `https://tragency-media.herokuapp.com/api/post/cloudinary/${newPost.id}`,
+              notification_url: `https://tragency-media-33590e815193.herokuapp.com/api/post/cloudinary/${newPost.id}`,
               resource_type: "video",
             };
       if (type !== "blogs")
